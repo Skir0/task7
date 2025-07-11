@@ -37,7 +37,7 @@ long long parseInteger(std::string_view s) {
 
 
 int main() {
-    const std::string filename = "input.txt";
+    const std::string filename = "/Users/kirill_smychok/CLionProjects/task7/input.txt";
 
     std::string content = readFileContent(filename);
     if (content.empty()) {
@@ -62,32 +62,32 @@ int main() {
     std::string content_no_strings = std::regex_replace(content, string_regex, " ");
 
     // --- ЭТАП 2: ИЗВЛЕЧЕНИЕ ДЕЙСТВИТЕЛЬНЫХ ЧИСЕЛ ---
-    const std::regex float_regex(R"([+-]?(?:(?:[0-9]+\.[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+))");
+    const std::regex float_regex(R"((?:^|\s)([+-]?(?:(?:[0-9]+\.[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+))(?=\s|$))");
 
     auto float_begin = std::sregex_iterator(content_no_strings.begin(), content_no_strings.end(), float_regex);
     auto float_end = std::sregex_iterator();
 
     for (std::sregex_iterator i = float_begin; i != float_end; ++i) {
-        double_sum += std::stod((*i).str());
+        double_sum += std::stod((*i)[1].str());  // Берём первую группу, так как основное число в группе 1
     }
 
     std::string content_no_strings_or_floats = std::regex_replace(content_no_strings, float_regex, " ");
 
 
     // --- ЭТАП 3: ИЗВЛЕЧЕНИЕ ЦЕЛЫХ ЧИСЕЛ ---
-    const std::regex int_regex(R"([+-]?(?:0[xX][0-9a-fA-F]+|0[bB][01]+|0[0-7]*|[1-9][0-9]*))");
+    const std::regex int_regex(R"((?:^|\s)([+-]?(?:0[xX][0-9a-fA-F]+|0[bB][01]+|0[0-7]*|[1-9][0-9]*))(?=\s|$))");
 
     auto int_begin = std::sregex_iterator(content_no_strings_or_floats.begin(), content_no_strings_or_floats.end(),
                                           int_regex);
     auto int_end = std::sregex_iterator();
 
     for (std::sregex_iterator i = int_begin; i != int_end; ++i) {
-        integer_sum += parseInteger((*i).str());
+        integer_sum += parseInteger((*i)[1].str());  // Берём первую группу
     }
     std::cout << "--- Результаты ---" << std::endl;
 
     std::cout << "Сумма целых чисел: " << integer_sum << std::endl;
-    std::cout << "Сумма действительных чисел: " << double_sum << std::endl;
+    std::cout << "Сумма действительных чисел: " << double_sum + integer_sum << std::endl;
 
     std::cout << "Найденные строки:" << std::endl;
     if (found_strings.empty()) {
